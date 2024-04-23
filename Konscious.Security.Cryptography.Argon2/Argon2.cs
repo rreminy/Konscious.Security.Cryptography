@@ -5,6 +5,7 @@ namespace Konscious.Security.Cryptography
     using System;
     using System.Threading.Tasks;
     using System.Security.Cryptography;
+    using System.Threading;
 
     /// <summary>
     /// An implementation of Argon2 https://github.com/P-H-C/phc-winner-argon2
@@ -34,21 +35,26 @@ namespace Konscious.Security.Cryptography
         /// <summary>
         /// Implementation of GetBytes
         /// </summary>
-        public override byte[] GetBytes(int bc)
+        public byte[] GetBytes(int bc, CancellationToken cancellationToken)
         {
             ValidateParameters(bc);
-            var task = Task.Run(async () => await GetBytesAsyncImpl(bc).ConfigureAwait(false) );
+            var task = Task.Run(async () => await GetBytesAsyncImpl(bc, cancellationToken).ConfigureAwait(false) );
             return task.Result;
         }
+
+        /// <summary>
+        /// Implementation of GetBytes
+        /// </summary>
+        public override byte[] GetBytes(int bc) => this.GetBytes(bc, CancellationToken.None);
 
 
         /// <summary>
         /// Implementation of GetBytes
         /// </summary>
-        public Task<byte[]> GetBytesAsync(int bc)
+        public Task<byte[]> GetBytesAsync(int bc, CancellationToken cancellationToken = default)
         {
             ValidateParameters(bc);
-            return GetBytesAsyncImpl(bc);
+            return GetBytesAsyncImpl(bc, cancellationToken);
         }
 
         /// <summary>
@@ -98,7 +104,7 @@ namespace Konscious.Security.Cryptography
                 throw new InvalidOperationException("Argon2 requires at least 1 thread (DegreeOfParallelism)");
         }
 
-        private Task<byte[]> GetBytesAsyncImpl(int bc)
+        private Task<byte[]> GetBytesAsyncImpl(int bc, CancellationToken cancellationToken)
         {
             var n = BuildCore(bc);
             n.Salt = Salt;
@@ -108,9 +114,9 @@ namespace Konscious.Security.Cryptography
             n.MemorySize = MemorySize;
             n.DegreeOfParallelism = DegreeOfParallelism;
 
-            return n.Hash(_password);
+            return n.Hash(_password, cancellationToken);
         }
 
-        private byte[] _password;
+        private readonly byte[] _password;
     }
 }

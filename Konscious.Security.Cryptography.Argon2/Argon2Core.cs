@@ -3,6 +3,7 @@ namespace Konscious.Security.Cryptography
     using System;
     using System.Linq;
     using System.Runtime.InteropServices;
+    using System.Threading;
     using System.Threading.Tasks;
 
 
@@ -29,7 +30,7 @@ namespace Konscious.Security.Cryptography
         public byte[] Secret { get; set; }
 
         // private stuff starts here
-        internal async Task<byte[]> Hash(byte[] password)
+        internal async Task<byte[]> Hash(byte[] password, CancellationToken cancellationToken)
         {
             var lanes = await InitializeLanes(password).ConfigureAwait(false);
 
@@ -54,6 +55,7 @@ namespace Konscious.Security.Cryptography
                         var state = GenerateState(lanes, segmentLength, i, l, s);
                         for (var c = start; c < segmentLength; ++c, curOffset++)
                         {
+                            cancellationToken.ThrowIfCancellationRequested();
                             var pseudoRand = state.PseudoRand(c, prevLane, prevOffset);
                             var refLane = (uint)(pseudoRand >> 32) % lanes.Length;
 
