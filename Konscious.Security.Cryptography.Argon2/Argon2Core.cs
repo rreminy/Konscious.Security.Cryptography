@@ -10,7 +10,7 @@ namespace Konscious.Security.Cryptography
 
     internal abstract class Argon2Core
     {
-        public Argon2Core(int hashSize)
+        protected Argon2Core(int hashSize)
         {
             _tagLine = hashSize;
         }
@@ -74,6 +74,7 @@ namespace Konscious.Security.Cryptography
                     }));
 
                     await Task.WhenAll(segment).ConfigureAwait(false);
+                    cancellationToken.ThrowIfCancellationRequested();
                     start = 0;
                 }
             }

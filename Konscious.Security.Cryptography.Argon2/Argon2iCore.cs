@@ -1,17 +1,19 @@
 namespace Konscious.Security.Cryptography
 {
     using System;
+    using System.Diagnostics.CodeAnalysis;
 
     /// <summary>
     /// The implementation of Argon2i for use in the crypto library
     /// </summary>
+    [SuppressMessage("Minor Code Smell", "S101")]
     internal class Argon2iCore : Argon2Core
     {
         private readonly static Memory<ulong> _zeroBlock = new Memory<ulong>(new ulong[128]);
 
         internal class PseudoRands : IArgon2PseudoRands
         {
-            private ulong[] _rands;
+            private readonly ulong[] _rands;
 
             public PseudoRands(ulong[] rands)
             {

@@ -13,7 +13,7 @@ using BenchmarkDotNet.Jobs;
 
 namespace ArgonBenchmarks
 {
-    internal class Program
+    public static class Program
     {
         public static void Main()
         {
@@ -22,8 +22,7 @@ namespace ArgonBenchmarks
     }
 
     [MemoryDiagnoser]
-    [SimpleJob(RuntimeMoniker.Net462)]
-    [SimpleJob(RuntimeMoniker.Net60)]
+    [SimpleJob(RuntimeMoniker.Net80)]
     [JsonExporterAttribute.BriefCompressed, CsvExporter(BenchmarkDotNet.Exporters.Csv.CsvSeparator.CurrentCulture)]
     public class ArgonBenchmarks
     {

@@ -1,5 +1,7 @@
 namespace Konscious.Security.Cryptography
 {
+    using System;
+    using System.Diagnostics.CodeAnalysis;
     using System.Text;
     using Xunit;
 
@@ -279,6 +281,7 @@ namespace Konscious.Security.Cryptography
         }
         
         [Fact(Skip="This is for manual inspection of memory use")]
+        [SuppressMessage("", "S1215")]
         public void LookForMemoryLeaks()
         {
             for (int i = 0; i < 150000; i++)
@@ -296,7 +299,7 @@ namespace Konscious.Security.Cryptography
             argon2.DegreeOfParallelism = 4;
             argon2.MemorySize = 32 * 1024;
             argon2.Iterations = 4;
-            var hash = argon2.GetBytes(128);
+            Assert.NotNull(argon2.GetBytes(128));
         }
 
         public static byte[] Hash(string password, string salt)

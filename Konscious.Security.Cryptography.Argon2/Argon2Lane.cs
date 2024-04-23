@@ -1,6 +1,7 @@
 namespace Konscious.Security.Cryptography
 {
     using System;
+    using System.Diagnostics;
 
     internal class Argon2Lane
     {
@@ -14,11 +15,7 @@ namespace Konscious.Security.Cryptography
         {
             get
             {
-                if (index < 0 || index > BlockCount)
-                {
-                    throw new ArgumentOutOfRangeException(nameof(index));
-                }
-
+                Debug.Assert(index >= 0 && index < BlockCount);
                 return _memory.Slice(128*index, 128);
             }
         }

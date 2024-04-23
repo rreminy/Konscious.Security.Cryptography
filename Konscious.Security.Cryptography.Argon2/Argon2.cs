@@ -17,7 +17,7 @@ namespace Konscious.Security.Cryptography
         /// Create an Argon2 for encrypting the given password
         /// </summary>
         /// <param name="password"></param>
-        public Argon2(byte[] password)
+        protected Argon2(byte[] password)
         {
             if (password == null || password.Length == 0)
                 throw new ArgumentException("Argon2 needs a password set", nameof(password));
@@ -45,7 +45,7 @@ namespace Konscious.Security.Cryptography
         /// <summary>
         /// Implementation of GetBytes
         /// </summary>
-        public override byte[] GetBytes(int bc) => this.GetBytes(bc, CancellationToken.None);
+        public override byte[] GetBytes(int cb) => this.GetBytes(cb, CancellationToken.None);
 
 
         /// <summary>

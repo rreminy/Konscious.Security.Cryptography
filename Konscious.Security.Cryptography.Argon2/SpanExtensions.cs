@@ -1,16 +1,14 @@
 ﻿namespace Konscious.Security.Cryptography
 {
     using System;
+    using System.Diagnostics;
     using System.Runtime.InteropServices;
 
     internal static class SpanExtensions
     {
         public static void Blit(this Span<ulong> toBlit, ReadOnlySpan<byte> bytes, int destOffset = 0)
         {
-            if (bytes.Length/8 > toBlit.Length - destOffset)
-            {
-                throw new ArgumentException("Cannot write more than remaining space");
-            }
+            Debug.Assert(bytes.Length / 8 <= toBlit.Length - destOffset);
 
             var remainder = bytes.Length % 8;
             var newSpan = MemoryMarshal.Cast<byte, ulong>(bytes);

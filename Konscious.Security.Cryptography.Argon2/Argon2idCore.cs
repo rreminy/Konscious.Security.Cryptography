@@ -1,8 +1,11 @@
-﻿namespace Konscious.Security.Cryptography
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace Konscious.Security.Cryptography
 {
     /// <summary>
     /// The implementation of Argon2d for use in the crypto library
     /// </summary>
+    [SuppressMessage("Minor Code Smell", "S101")]
     internal class Argon2idCore : Argon2iCore
     {
         private const uint ARGON2_SYNC_POINTS = 4;

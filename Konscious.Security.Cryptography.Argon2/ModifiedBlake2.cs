@@ -1,15 +1,18 @@
 using System;
+using System.Runtime.CompilerServices;
 
 namespace Konscious.Security.Cryptography
 {
     internal static class ModifiedBlake2
     {
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static ulong Rotate(ulong x, int y)
         {
             return (((x) >> (y)) ^ ((x) << (64 - (y))));
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private unsafe static void ModifiedG(ulong *v, int a, int b, int c, int d)
         {
             var t = (v[a] & 0xffffffff) * (v[b] & 0xffffffff);
@@ -34,6 +37,7 @@ namespace Konscious.Security.Cryptography
             v[b] = Rotate(v[b] ^ v[c], 63);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public unsafe static void DoRoundColumns(ulong *v, int i)
         {
             i *= 16;
@@ -48,6 +52,7 @@ namespace Konscious.Security.Cryptography
         }
 
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public unsafe static void DoRoundRows(ulong *v, int i)
         {
             i *= 2;

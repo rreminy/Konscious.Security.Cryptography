@@ -1,8 +1,11 @@
-﻿namespace Konscious.Security.Cryptography
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace Konscious.Security.Cryptography
 {
     /// <summary>
     /// An implementation of Argon2 https://github.com/P-H-C/phc-winner-argon2
     /// </summary>
+    [SuppressMessage("Minor Code Smell", "S101")]
     public class Argon2id : Argon2
     {
         /// <summary>

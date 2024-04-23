@@ -11,64 +11,59 @@ namespace Konscious.Security.Cryptography
     {
         public LittleEndianActiveStream(byte[] buffer = null)
         {
-            _bufferSetupActions = new LinkedList<Action>();
             _buffer = buffer;
             _bufferAvailable = _buffer?.Length ?? 0;
         }
 
         public void Expose(short data)
         {
-            _bufferSetupActions.AddLast(() => BufferShort((ushort)data));
+            _bufferSetupActions.Enqueue(() => BufferShort((ushort)data));
         }
 
         public void Expose(ushort data)
         {
-            _bufferSetupActions.AddLast(() => BufferShort(data));
+            _bufferSetupActions.Enqueue(() => BufferShort(data));
         }
 
         public void Expose(int data)
         {
-            _bufferSetupActions.AddLast(() => BufferInt((uint)data));
+            _bufferSetupActions.Enqueue(() => BufferInt((uint)data));
         }
 
         public void Expose(uint data)
         {
-            _bufferSetupActions.AddLast(() => BufferInt(data));
+            _bufferSetupActions.Enqueue(() => BufferInt(data));
         }
 
         public void Expose(byte data)
         {
-            _bufferSetupActions.AddLast(() => BufferByte(data));
+            _bufferSetupActions.Enqueue(() => BufferByte(data));
         }
 
         public void Expose(byte[] data)
         {
             if (data != null)
             {
-                _bufferSetupActions.AddLast(() => BufferArray(data, 0, data.Length));
+                _bufferSetupActions.Enqueue(() => BufferArray(data, 0, data.Length));
             }
         }
 
         public void Expose(Memory<ulong> mem)
         {
-            _bufferSetupActions.AddLast(() => BufferSpan(mem.Span));
+            _bufferSetupActions.Enqueue(() => BufferSpan(mem.Span));
         }
 
         public void Expose(Stream subStream)
         {
             if (subStream != null)
             {
-                _bufferSetupActions.AddLast(() => BufferSubStream(subStream));
+                _bufferSetupActions.Enqueue(() => BufferSubStream(subStream));
             }
         }
 
         public void ClearBuffer()
         {
-            for (int i = 0; i < _buffer.Length; ++i)
-            {
-                _buffer[i] = 0;
-            }
-
+            Array.Clear(_buffer);
             _bufferAvailable = 0;
         }
 
@@ -84,14 +79,8 @@ namespace Konscious.Security.Cryptography
                 int available = _bufferAvailable - _bufferOffset;
                 if (available == 0)
                 {
-                    if (_bufferSetupActions.Count == 0)
-                    {
-                        // there's nothing left to queue up - we read what we could
-                        return totalRead;
-                    }
-
-                    _bufferSetupActions.First.Value();
-                    _bufferSetupActions.RemoveFirst();
+                    if (_bufferSetupActions.TryDequeue(out var action)) action();
+                    else return totalRead;
 
                     // we are safe to assume that offset becomes 0 after that call
                     available = _bufferAvailable;
@@ -121,7 +110,7 @@ namespace Konscious.Security.Cryptography
 
         public override void Write(byte[] buffer, int offset, int count)
         {
-            _bufferSetupActions.AddLast(() => BufferArray(buffer, offset, count));
+            _bufferSetupActions.Enqueue(() => BufferArray(buffer, offset, count));
         }
 
         private void BufferSubStream(Stream stream)
@@ -130,7 +119,7 @@ namespace Konscious.Security.Cryptography
             var result = stream.Read(_buffer, 0, 1024);
             if (result == 1024)
             {
-                _bufferSetupActions.AddFirst(() => BufferSubStream(stream));
+                _bufferSetupActions.Enqueue(() => BufferSubStream(stream));
             }
             else
             {
@@ -190,7 +179,7 @@ namespace Konscious.Security.Cryptography
             _bufferAvailable = size;
         }
 
-        private LinkedList<Action> _bufferSetupActions;
+        private readonly Queue<Action> _bufferSetupActions = new Queue<Action>();
 
         private byte[] _buffer;
         private int _bufferOffset;
